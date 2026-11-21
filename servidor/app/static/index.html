@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#161719">
+  <title>AgroWeather IoT — Estação meteorológica</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 6V3m-4 5L1 6m11 0 2-2M7 13a4 4 0 1 1 4-5"/><path d="M7 20h11a4 4 0 0 0 .2-8A6 6 0 0 0 7 11a4.5 4.5 0 0 0 0 9Z"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="10" y="10" width="4" height="4"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM9 21h6"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3-1 3-3 1-2 3 2 3v3l3 2 1 3h6l1-3 3-2v-3l2-3-2-3-3-1-1-3Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M19 10a7 7 0 0 0-12-5L4 8m1 6a7 7 0 0 0 12 5l3-3"/></symbol>
+  <symbol id="i-temp" viewBox="0 0 24 24"><path d="M9 14V5a3 3 0 0 1 6 0v9a5 5 0 1 1-6 0Z"/><path d="M12 9v9m-1 0h2"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s7 8 7 12a7 7 0 0 1-14 0c0-4 7-12 7-12Z"/><path d="M9 16a3 3 0 0 0 3 3"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 19a10 10 0 1 1 16 0ZM12 14l5-5M5 10l2 1m5-6v2m7 3-2 1"/><circle cx="12" cy="14" r="1"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+</svg>
+<aside class="sidebar" aria-label="Navegação principal">
+  <a class="brand-mark" href="#home" aria-label="AgroWeather"><svg class="icon"><use href="#i-cloud"/></svg></a>
+  <nav>
+    <button class="nav-btn active" data-view="home" title="Visão geral" aria-label="Visão geral" aria-current="page"><svg class="icon"><use href="#i-home"/></svg><span>Visão geral</span></button>
+    <button class="nav-btn" data-view="devices" title="Estações e sensores" aria-label="Estações e sensores"><svg class="icon"><use href="#i-chip"/></svg><span>Sensores</span></button>
+    <button class="nav-btn" data-view="alerts" title="Alertas" aria-label="Alertas"><svg class="icon"><use href="#i-bell"/></svg><span>Alertas</span><b id="nav-alert-count" hidden>0</b></button>
+  </nav>
+  <button class="nav-btn settings-nav" data-view="settings" title="Configurações" aria-label="Configurações"><svg class="icon"><use href="#i-settings"/></svg><span>Ajustes</span></button>
+  <span class="sidebar-foot">IoT</span>
+</aside>
+<div class="app">
+  <header class="topbar">
+    <a href="#home" class="brand">AgroWeather<span>IoT</span></a>
+    <span class="header-divider"></span>
+    <label class="station-picker"><span class="sr-only">Estação</span><select id="station"><option value="">Aguardando estação…</option></select></label>
+    <div class="topbar-end"><span id="connection" class="status neutral"><i></i>Conectando</span><button id="refresh" class="icon-button" aria-label="Atualizar dados" title="Atualizar dados"><svg class="icon"><use href="#i-refresh"/></svg></button></div>
+  </header>
+  <main>
+    <div id="error-banner" class="banner" role="status" hidden></div>
+    <section id="view-home" class="view">
+      <div class="page-heading"><div><p class="eyebrow">MONITORAMENTO DO MICROCLIMA</p><h1>Visão geral</h1><p id="station-description" class="muted">As condições da sua estação de campo.</p></div><div class="update-block"><span id="last-update">Aguardando primeira leitura</span><small id="next-update">Atualização automática a cada 15 s</small></div></div>
+      <div class="metrics-grid">
+        <article class="card metric-card"><div class="card-label"><svg class="icon"><use href="#i-temp"/></svg>Clima local<span class="sensor-tag">AHT20</span></div><div class="climate-values"><div><span class="metric-caption">Temperatura</span><div class="value orange"><strong id="current-temp">—</strong><span>°C</span></div></div><div><span class="metric-caption">Umidade relativa</span><div class="value blue"><strong id="current-humidity">—</strong><span>%</span></div></div></div><div class="card-foot"><span>Ponto de orvalho <b id="dewpoint">—</b></span><span class="small muted">estimado</span></div></article>
+        <article class="card metric-card"><div class="card-label"><svg class="icon"><use href="#i-gauge"/></svg>Pressão atmosférica<span class="sensor-tag">BMP280</span></div><div class="pressure-value value"><strong id="current-pressure">—</strong><span>hPa</span></div><p class="metric-caption">Pressão absoluta medida no local</p><div class="card-foot"><span>Temperatura BMP <b id="bmp-temp">—</b></span><span id="pressure-quality" class="small muted">Sem leitura</span></div></article>
+        <article class="card metric-card"><div class="card-label"><svg class="icon"><use href="#i-chip"/></svg>Saúde da estação</div><div class="system-rows"><div><span>Recebimento de dados</span><b id="station-state" class="neutral-text">Aguardando</b></div><div><span>Coleta esperada</span><b id="sample-interval">60 s</b></div><div><span>Transporte</span><b>NRF24 → ESP32 → HTTP</b></div></div><div class="card-foot"><span>Última sequência <b id="sequence">—</b></span><span class="small muted">dados reais</span></div></article>
+        <article class="card metric-card alert-card"><div class="card-label"><svg class="icon"><use href="#i-bell"/></svg>Condições de atenção</div><div><div class="alert-headline"><strong id="alert-number">—</strong><span id="alert-summary">Aguardando medições</span></div><p id="alert-preview" class="muted small">Os limites serão avaliados quando a estação enviar dados.</p></div><button class="card-link" data-view="alerts">Ver condições<svg class="icon"><use href="#i-arrow"/></svg></button></article>
+      </div>
+      <section class="card filter-card" aria-label="Filtros do histórico">
+        <div class="filter-top"><label class="filter-mode"><span class="sr-only">Modo de consulta</span><select id="view-mode"><option value="recent">Período recente</option><option value="day">Dia específico</option><option value="months">Comparar meses</option><option value="seasons">Estações do ano</option></select></label><div id="recent-panel" class="segmented" aria-label="Período recente"><button data-days="1" class="active">24 horas</button><button data-days="7">7 dias</button><button data-days="30">30 dias</button><button data-days="365">1 ano</button></div><label id="day-panel" hidden><span class="sr-only">Data específica</span><input id="specific-date" type="date"></label><label id="year-panel" class="year-field" hidden>Ano <input id="filter-year" type="number" min="2020" max="2100"></label><div class="segmented shift-filter" aria-label="Turno"><button class="active" data-shift="todos">24h</button><button data-shift="dia">Dia</button><button data-shift="noite">Noite</button></div></div>
+        <div id="months-panel" class="month-grid" hidden aria-label="Meses selecionados"></div><div id="seasons-panel" class="segmented seasons" hidden><button data-season="summer" class="active">Verão</button><button data-season="autumn">Outono</button><button data-season="winter">Inverno</button><button data-season="spring">Primavera</button></div><div class="filter-bottom"><span id="period-description">Últimas 24 horas · todos os horários</span><span>Brasília · UTC−3</span></div>
+      </section>
+      <div class="charts-grid">
+        <section class="card chart-card"><div class="section-header"><div><h2>Temperatura e umidade</h2><p id="chart-summary">Histórico das medições recebidas</p></div><div class="legend"><span><i class="orange-dot"></i>°C</span><span><i class="blue-dot"></i>%</span></div></div><div id="climate-chart" class="chart" aria-label="Gráfico de temperatura e umidade"></div></section>
+        <section class="card chart-card"><div class="section-header"><div><h2>Pressão atmosférica</h2><p>Histórico absoluto · hPa</p></div><span class="legend"><i class="purple-dot"></i>BMP280</span></div><div id="pressure-chart" class="chart" aria-label="Gráfico de pressão atmosférica"></div></section>
+      </div>
+      <div class="stats-strip" id="period-stats"><span><b>—</b> leituras no período</span><span>Temperatura mín. <b>—</b> / máx. <b>—</b></span><span>Umidade média <b>—</b></span></div>
+      <section class="card history-card"><div class="section-header"><div><h2>Registro de medições</h2><p id="history-description">Últimas leituras do período selecionado</p></div><button id="export" class="button secondary" disabled><svg class="icon"><use href="#i-download"/></svg>Exportar CSV</button></div><div class="table-scroll"><table><thead><tr><th>Recebido em</th><th>Temperatura</th><th>Umidade</th><th>Pressão</th><th>Temp. BMP</th><th>Sequência</th></tr></thead><tbody id="history-body"><tr><td colspan="6" class="empty-cell">Aguardando a primeira medição da estação.</td></tr></tbody></table></div></section>
+    </section>
+    <section id="view-devices" class="view" hidden><div class="page-heading"><div><p class="eyebrow">REDE DE MONITORAMENTO</p><h1>Estações e sensores</h1><p class="muted">Cada estação corresponde a um gateway ESP32. AHT20 e BMP280 são os sensores ligados ao Arduino dessa estação.</p></div></div><label class="diagnostic-toggle"><input id="show-diagnostics" type="checkbox"> Mostrar dispositivos de diagnóstico e teste</label><p class="page-note">Total no histórico conta todas as medições armazenadas desde a primeira leitura, incluindo os testes anteriores à coleta de 60 segundos. Não é a quantidade de sensores nem de leituras desde que o painel foi aberto.</p><div class="card"><div class="table-scroll"><table><thead><tr><th>Estação</th><th>Identificador</th><th>Total no histórico</th><th>Primeira leitura</th><th>Última leitura</th><th>Situação</th><th></th></tr></thead><tbody id="devices-body"></tbody></table></div></div><p class="page-note">O protocolo atual não envia tensão de bateria nem intensidade do sinal. Esses valores não são estimados pelo painel.</p></section>
+    <section id="view-alerts" class="view" hidden><div class="page-heading"><div><p class="eyebrow">ACOMPANHAMENTO DA ESTAÇÃO</p><h1>Condições de atenção</h1><p class="muted">Ao abrir esta tela, os avisos são marcados como visualizados neste navegador. As condições permanecem listadas enquanto estiverem ativas. Se uma condição normalizar e voltar a ocorrer, gera um novo aviso.</p></div><button class="button secondary" data-view="settings">Ajustar limites</button></div><div id="alerts-list" class="alerts-list"></div><p class="page-note">Avisos locais por limites. Não representam previsão de geada ou diagnóstico fitossanitário e ainda não enviam notificações externas.</p></section>
+    <section id="view-settings" class="view" hidden><div class="page-heading"><div><p class="eyebrow">PREFERÊNCIAS DO PAINEL</p><h1>Configurações</h1><p class="muted">Ajustes salvos neste navegador, sem alterar o firmware.</p></div></div><form id="settings-form" class="settings-grid"><section class="card settings-card"><h2>Estação e atualização</h2><label>Nome da estação selecionada<input id="setting-name" maxlength="60" placeholder="Estação de campo"></label><label>Intervalo esperado de coleta<select id="setting-interval"><option value="30">30 segundos</option><option value="60">60 segundos</option></select></label><p class="small muted">Usado para detectar ausência de novas leituras. A frequência de coleta é definida no código do Arduino.</p><label>Atualização do painel<select id="setting-refresh"><option value="15">A cada 15 segundos</option><option value="30">A cada 30 segundos</option><option value="60">A cada 60 segundos</option></select></label></section><section class="card settings-card"><h2>Limites de atenção</h2><div class="field-pair"><label>Temperatura baixa (°C)<input id="setting-low" type="number" min="-40" max="84" step="0.5" required></label><label>Temperatura alta (°C)<input id="setting-high" type="number" min="-39" max="85" step="0.5" required></label></div><label>Umidade alta (%)<input id="setting-humidity" type="number" min="1" max="100" step="1" required></label><p class="small muted">Os avisos comparam a última leitura com esses limites. A verificação de pressão usa a faixa de medição do BMP280: 300–1100 hPa.</p><button type="submit" class="button primary">Salvar preferências</button><p id="settings-feedback" class="form-feedback" role="status"></p></section></form><section class="card access-card"><div><h2>Acesso ao histórico</h2><p class="small muted">Se o servidor exigir token, informe o mesmo configurado no ESP32. O acesso fica apenas nesta sessão do navegador.</p></div><button id="access-button" class="button secondary">Configurar acesso</button></section></section>
+    <footer class="footer"><span>AgroWeather IoT <i>·</i> Estação meteorológica de baixo custo</span><span>Oficina de Integração 1 · UTFPR</span></footer>
+  </main>
+</div>
+<dialog id="access-dialog"><form id="access-form"><p class="eyebrow">ACESSO AO SERVIDOR</p><h2>Token da estação</h2><p class="muted small">Necessário somente se a autenticação estiver habilitada no servidor.</p><label>Token de acesso<input id="access-token" type="password" autocomplete="off"></label><div class="dialog-actions"><button id="access-cancel" type="button" class="button secondary">Cancelar</button><button class="button primary" type="submit">Conectar</button></div><p id="access-feedback" role="status" class="small"></p></form></dialog>
+<noscript>Ative o JavaScript para consultar o painel da estação.</noscript>
+</body>
+</html>
